@@ -315,7 +315,7 @@ class PlacesApi
             $options['query'] = array_merge($options['query'], $params);
         }
         
-        $options['http_errors'] = false;
+        $options['exceptions'] = false;
         
         $options['verify'] = $this->verifySSL;
         
