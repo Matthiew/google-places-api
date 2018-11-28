@@ -6,7 +6,7 @@
 
 # Google Places API.
 
-This is a PHP wrapper for **Google Places API Web Service**. And is [Laravel Framework](https://laravel.com/docs/5.2) friendly.
+This is a PHP wrapper for **Google Places API Web Service**
 
 ## About Package
 With just 2 lines of code you can request to any google places api feature. No need to manually perform any curl requests.
@@ -29,28 +29,6 @@ composer require skagarwal/google-places-api
 
 # Usage
 
-**Laravel user can see the [Laravel Usage](#laravel-usage) section**
-
-## Step 1 - Import the class using namespace
-```php
-use SKAgarwal\GoogleApi\PlacesApi;
-```
-
-## Step 2 - Initiate the object
-```php
-$googlePlaces = new PlacesApi('API KEY');
-```
-
-**Note:** You can also set the **API KEY** after initiating the class using `setKey('KEY')` method. You can chain this with method with any other methods.
-
-## Step 3 - Start Using the Api.
-Example:
-```php
-$response = $googlePlaces->placeAutocomplete('some Place');
-```
-
-As mentioned earlier just 2 lines of code to make any request.
-
 **Full example:**
 ```php
 use SKAgarwal\GoogleApi\PlacesApi;
@@ -62,57 +40,6 @@ function () {
 }
 
 ```
-
----
-
-<a name=laravel-usage></a>
-# Use with Laravel
-## For Laravel 5.5
-Auto Discovery added.
-
-## For Laravel 5.4 and below
-## Step 1
-Set up the service provider and facade in the **config\app.php**
-```php
-
-'providers' => [
-....
-....
-SKAgarwal\GoogleApi\ServiceProvider::class,
-];
-
-'aliases' => [
-....
-....
-'GooglePlaces' => SKAgarwal\GoogleApi\Facade::class,
-];
-
-```
-
-## Step 2
-publish the config file with following artisan command
-```
-php artisan vendor:publish --provider="SKAgarwal\GoogleApi\ServiceProvider"
-```
-
-This will create **google.php** file in the config directory.
-
-Set the *API KEY* in this config file.
-
-## Set 3
-Start using the package using Facade.
-
-```
-$response = GooglePlaces::placeAutocomplete('some city');
-```
-
----
-# Response
-The response returned is a [Laravel's Collection](https://laravel.com/docs/5.2/collections) so that you can perform any of the available collection methods on it.
-
-<blockquote>
-If you are not familiar with <em>Laravel's Collection</em> you can either reference the docs <a href="https://laravel.com/docs/5.2/collections">here</a> or you can use <strong>response</strong> as simple array.
-</blockquote>
 
 ---
 

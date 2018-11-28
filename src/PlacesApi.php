@@ -3,7 +3,6 @@
 namespace SKAgarwal\GoogleApi;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\TransferStats;
 use SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException;
 
 class PlacesApi
@@ -25,8 +24,6 @@ class PlacesApi
     const PLACE_ADD_URL = 'add/json';
     
     const PLACE_DELETE_URL = 'delete/json';
-    
-    const PLACE_PHOTO_URL = 'photo';
     
     
     
@@ -63,7 +60,7 @@ class PlacesApi
         $this->verifySSL = $verifySSL;
         
         $this->client = new Client([
-            'base_uri' => self::BASE_URL,
+            'base_url' => self::BASE_URL,
         ]);
     }
     
@@ -74,7 +71,7 @@ class PlacesApi
      * @param string $inputType (textquery or phonenumber)
      * @param array $params
      *
-     * @return \Illuminate\Support\Collection
+     * @return array
      * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
      */
     public function findPlace($input, $inputType, $params = [])
@@ -85,9 +82,7 @@ class PlacesApi
         
         $params['inputtype'] = $inputType;
         
-        $response = $this->makeRequest(self::FIND_PLACE, $params);
-        
-        return $this->convertToCollection($response, 'candidates');
+        return $this->makeRequest(self::FIND_PLACE, $params);
     }
     
     /**
@@ -97,7 +92,7 @@ class PlacesApi
      * @param null $radius
      * @param array $params
      *
-     * @return \Illuminate\Support\Collection
+     * @return array
      * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
      */
     public function nearbySearch($location, $radius = null, $params = [])
@@ -105,9 +100,7 @@ class PlacesApi
         $this->checkKey();
         
         $params = $this->prepareNearbySearchParams($location, $radius, $params);
-        $response = $this->makeRequest(self::NEARBY_SEARCH_URL, $params);
-        
-        return $this->convertToCollection($response, 'results');
+        return $this->makeRequest(self::NEARBY_SEARCH_URL, $params);
     }
     
     /**
@@ -116,7 +109,7 @@ class PlacesApi
      * @param $query
      * @param array $params
      *
-     * @return \Illuminate\Support\Collection
+     * @return array
      * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
      */
     public function textSearch($query, $params = [])
@@ -124,9 +117,7 @@ class PlacesApi
         $this->checkKey();
         
         $params['query'] = $query;
-        $response = $this->makeRequest(self::TEXT_SEARCH_URL, $params);
-        
-        return $this->convertToCollection($response, 'results');
+        return $this->makeRequest(self::TEXT_SEARCH_URL, $params);
         
     }
     
@@ -136,7 +127,7 @@ class PlacesApi
      * @param $placeId
      * @param array $params
      *
-     * @return \Illuminate\Support\Collection
+     * @return array
      * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
      */
     public function placeDetails($placeId, $params = [])
@@ -145,39 +136,7 @@ class PlacesApi
         
         $params['placeid'] = $placeId;
         
-        $response = $this->makeRequest(self::DETAILS_SEARCH_URL, $params);
-        
-        return $this->convertToCollection($response);
-    }
-    
-    /**
-     * @param $photoReference
-     * @param array $params
-     *
-     * @return mixed|string
-     * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
-     */
-    public function photo($photoReference, $params = [])
-    {
-        $this->checkKey();
-        
-        $params['photoreference'] = $photoReference;
-        
-        if (!array_any_keys_exists(['maxwidth', 'maxheight'], $params)) {
-            throw new GooglePlacesApiException('maxwidth or maxheight param is required');
-        }
-        
-        $options = $this->getOptions($params);
-        
-        $url = '';
-        
-        $options['on_stats'] = function (TransferStats $stats) use (&$url) {
-            $url = $stats->getEffectiveUri();
-        };
-        
-        $this->client->get(self::PLACE_PHOTO_URL, $options);
-        
-        return (string) $url;
+        return $this->makeRequest(self::DETAILS_SEARCH_URL, $params);
     }
     
     /**
@@ -186,7 +145,7 @@ class PlacesApi
      * @param $input
      * @param array $params
      *
-     * @return \Illuminate\Support\Collection
+     * @return array
      * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
      */
     public function placeAutocomplete($input, $params = [])
@@ -195,9 +154,7 @@ class PlacesApi
         
         $params['input'] = $input;
         
-        $response = $this->makeRequest(self::PLACE_AUTOCOMPLETE_URL, $params);
-        
-        return $this->convertToCollection($response, 'predictions');
+        return $this->makeRequest(self::PLACE_AUTOCOMPLETE_URL, $params);
     }
     
     /**
@@ -206,7 +163,7 @@ class PlacesApi
      * @param $input
      * @param array $params
      *
-     * @return \Illuminate\Support\Collection
+     * @return array
      * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
      */
     public function queryAutocomplete($input, $params = [])
@@ -215,9 +172,7 @@ class PlacesApi
         
         $params['input'] = $input;
         
-        $response = $this->makeRequest(self::QUERY_AUTOCOMPLETE_URL, $params);
-        
-        return $this->convertToCollection($response, 'predictions');
+        return $this->makeRequest(self::QUERY_AUTOCOMPLETE_URL, $params);
     }
     
     /**
@@ -249,23 +204,6 @@ class PlacesApi
         }
         
         return $response;
-    }
-    
-    /**
-     * @param array $data
-     * @param null $index
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    private function convertToCollection(array $data, $index = null)
-    {
-        $data = collect($data);
-        
-        if ($index) {
-            $data[$index] = collect($data[$index]);
-        }
-        
-        return $data;
     }
     
     /**

@@ -19,9 +19,7 @@
     ],
     "require": {
         "php": ">=5.5.9",
-        "illuminate/support": "~5.0",
-        "illuminate/container": "~5.0",
-        "guzzlehttp/guzzle": "^5.0"
+        "guzzlehttp/guzzle": "^5.3"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
@@ -34,16 +32,6 @@
 
         "psr-4": {
             "SKAgarwal\\GoogleApi\\": "src/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "SKAgarwal\\GoogleApi\\ServiceProvider"
-            ],
-            "aliases": {
-                "GooglePlaces": "SKAgarwal\\GoogleApi\\Facade"
-            }
         }
     }
 }
