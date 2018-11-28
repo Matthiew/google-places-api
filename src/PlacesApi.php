@@ -25,8 +25,7 @@ class PlacesApi
     
     const PLACE_DELETE_URL = 'delete/json';
     
-    
-    
+
     /**
      * @var
      */
@@ -82,7 +81,9 @@ class PlacesApi
         
         $params['inputtype'] = $inputType;
         
-        return $this->makeRequest(self::FIND_PLACE, $params);
+        $response = $this->makeRequest(self::FIND_PLACE, $params);
+
+        return $this->convertToCollection($response, 'candidates');
     }
     
     /**
@@ -100,7 +101,9 @@ class PlacesApi
         $this->checkKey();
         
         $params = $this->prepareNearbySearchParams($location, $radius, $params);
-        return $this->makeRequest(self::NEARBY_SEARCH_URL, $params);
+        $response = $this->makeRequest(self::NEARBY_SEARCH_URL, $params);
+
+        return $this->convertToCollection($response, 'results');
     }
     
     /**
@@ -117,7 +120,9 @@ class PlacesApi
         $this->checkKey();
         
         $params['query'] = $query;
-        return $this->makeRequest(self::TEXT_SEARCH_URL, $params);
+        $response = $this->makeRequest(self::TEXT_SEARCH_URL, $params);
+
+        return $this->convertToCollection($response, 'results');
         
     }
     
@@ -136,7 +141,9 @@ class PlacesApi
         
         $params['placeid'] = $placeId;
         
-        return $this->makeRequest(self::DETAILS_SEARCH_URL, $params);
+        $response = $this->makeRequest(self::DETAILS_SEARCH_URL, $params);
+
+        return $this->convertToCollection($response);
     }
     
     /**
@@ -154,7 +161,9 @@ class PlacesApi
         
         $params['input'] = $input;
         
-        return $this->makeRequest(self::PLACE_AUTOCOMPLETE_URL, $params);
+        $response = $this->makeRequest(self::PLACE_AUTOCOMPLETE_URL, $params);
+
+        return $this->convertToCollection($response, 'predictions');
     }
     
     /**
@@ -172,7 +181,9 @@ class PlacesApi
         
         $params['input'] = $input;
         
-        return $this->makeRequest(self::QUERY_AUTOCOMPLETE_URL, $params);
+        $response = $this->makeRequest(self::QUERY_AUTOCOMPLETE_URL, $params);
+
+        return $this->convertToCollection($response, 'predictions');
     }
     
     /**
@@ -183,7 +194,7 @@ class PlacesApi
      * @return mixed|string
      * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
      */
-    private function makeRequest($uri, $params, $method = 'get')
+    private function  makeRequest($uri, $params, $method = 'get')
     {
         $options = $this->getOptions($params, $method);
         
@@ -191,6 +202,8 @@ class PlacesApi
             $this->client->$method($uri, $options)->getBody()->getContents(),
             true
         );
+
+        var_dump($response);
         
         $this->setStatus($response['status']);
         
@@ -204,6 +217,21 @@ class PlacesApi
         }
         
         return $response;
+    }
+
+    /**
+     * @param array $data
+     * @param null $index
+     *
+     * @return array
+     */
+    private function convertToCollection(array $data, $index = null)
+    {
+        if ($index) {
+            return $data[$index];
+        }
+
+        return $data;
     }
     
     /**
