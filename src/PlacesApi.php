@@ -203,8 +203,6 @@ class PlacesApi
             true
         );
 
-        var_dump($response);
-        
         $this->setStatus($response['status']);
         
         if ($response['status'] !== 'OK'
