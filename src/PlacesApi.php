@@ -25,7 +25,6 @@ class PlacesApi
     
     const PLACE_DELETE_URL = 'delete/json';
     
-
     /**
      * @var
      */
@@ -45,18 +44,37 @@ class PlacesApi
      * @var bool
      */
     private $verifySSL = true;
-    
+
+    /**
+     * @var bool
+     */
+    private $useCache = false;
+
+    /**
+     * @var \SKAgarwal\GoogleApi\CacheProvider\CacheProviderInterface
+     */
+    private $cacheProvider;
+
     /**
      * PlacesApi constructor.
      *
      * @param null $key
      * @param bool $verifySSL
+     * @param bool $useCache
+     * @param \SKAgarwal\GoogleApi\CacheProvider\CacheProviderInterface $cacheProvider
+     * @throws \Exception
      */
-    public function __construct($key = null, $verifySSL = true)
+    public function __construct($key = null, $verifySSL = true, $useCache = false, $cacheProvider = null)
     {
         $this->key = $key;
 
         $this->verifySSL = $verifySSL;
+        $this->useCache = $useCache;
+        $this->cacheProvider = $cacheProvider;
+
+        if ($this->useCache == true and empty($this->cacheProvider)) {
+            throw new \Exception('You need to furnish a cache provider');
+        }
         
         $this->client = new Client([
             'base_url' => self::BASE_URL,
@@ -194,8 +212,16 @@ class PlacesApi
      * @return mixed|string
      * @throws \SKAgarwal\GoogleApi\Exceptions\GooglePlacesApiException
      */
-    private function  makeRequest($uri, $params, $method = 'get')
+    private function makeRequest($uri, $params, $method = 'get')
     {
+        if ($this->useCache == true) {
+            $key = $uri . ':' . md5(json_encode($params));
+            $response = $this->cacheProvider->get($key);
+            if (!empty($response)) {
+                return json_decode($response, true);
+            }
+        }
+
         $options = $this->getOptions($params, $method);
         
         $response = json_decode(
@@ -212,6 +238,11 @@ class PlacesApi
                 array_key_exists('error_message', $response)
                     ?: "Error Message: {$response['error_message']}"
             );
+        }
+
+        if ($this->useCache == true) {
+            $key = $uri . ':' . md5(json_encode($params));
+            $this->cacheProvider->set($key, json_encode($response), $this->cacheProvider->msgTTL);
         }
         
         return $response;
