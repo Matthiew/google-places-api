@@ -215,8 +215,8 @@ class PlacesApi
     private function makeRequest($uri, $params, $method = 'get')
     {
         if ($this->useCache == true) {
-            $key = $uri . ':' . md5(json_encode($params));
-            $response = $this->cacheProvider->get($key);
+            $cacheKey = $uri . ':' . md5(json_encode($params));
+            $response = $this->cacheProvider->get($cacheKey);
             if (!empty($response)) {
                 return json_decode($response, true);
             }
@@ -241,8 +241,8 @@ class PlacesApi
         }
 
         if ($this->useCache == true) {
-            $key = $uri . ':' . md5(json_encode($params));
-            $this->cacheProvider->set($key, json_encode($response), $this->cacheProvider->msgTTL);
+            $cacheKey = $uri . ':' . md5(json_encode($params));
+            $this->cacheProvider->set($cacheKey, json_encode($response), $this->cacheProvider->msgTTL);
         }
         
         return $response;
